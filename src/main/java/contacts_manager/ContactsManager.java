@@ -48,15 +48,13 @@ public class ContactsManager {
 
     public static void main(String[] args) {
 
-        String PATH_TO_FILE = "data/contacts.txt";
+        String PATH_TO_FILE = "data/contacts.txt"; // File used for file-based data storage
         scanner = new Scanner(System.in);
         String userResponse; // Menu choice
         boolean done = false;
 
-        ContactUtils utils = new ContactUtils(PATH_TO_FILE);
-        ContactsDAO contactsDAO = new FileContactsDAO(PATH_TO_FILE);
-
-        utils.createContacts();
+//        ContactsDAO contactsDAO = new FileContactsDAO(PATH_TO_FILE);
+        ContactsDAO contactsDAO = new MySQLContactsDAO();
 
         System.out.println("Welcome to the Contacts Manager!\n");
         // Display menu with choices
@@ -76,7 +74,7 @@ public class ContactsManager {
                 case "2": // Add a new contact
                     List<Contact> curContacts = contactsDAO.fetchContacts();
                     boolean duplicateContact;
-                    String newName, overwrite, newNumber;
+                    String newName, overwrite;
                     do {
                         duplicateContact = false;
                         System.out.println("Enter name of new contact:");
