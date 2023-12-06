@@ -1,4 +1,6 @@
-package contacts_manager;
+package contacts_manager.dao;
+
+import contacts_manager.models.Contact;
 
 import java.io.IOException;
 import java.nio.file.Files;

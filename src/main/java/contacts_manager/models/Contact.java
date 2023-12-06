@@ -1,4 +1,4 @@
-package contacts_manager;
+package contacts_manager.models;
 
 public class Contact {
 

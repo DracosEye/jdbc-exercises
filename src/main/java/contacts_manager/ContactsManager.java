@@ -1,5 +1,9 @@
 package contacts_manager;
 
+import contacts_manager.dao.ContactsDAO;
+import contacts_manager.dao.MySQLContactsDAO;
+import contacts_manager.models.Contact;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -108,6 +112,7 @@ public class ContactsManager {
                 case "5": // Exit
                     done = true;
                     scanner.close();
+                    contactsDAO.close();
                     break;
                 default: // Entered something other than 1-5
                     System.out.println("Invalid response. Try again.\n");

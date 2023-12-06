@@ -1,10 +1,11 @@
-package contacts_manager;
+package contacts_manager.dao;
 
 import com.mysql.cj.jdbc.Driver;
 
 import java.sql.*;
 
 import config.Config;
+import contacts_manager.models.Contact;
 import dao.MySQLAlbumsException;
 
 import java.util.ArrayList;
@@ -23,9 +24,9 @@ public class MySQLContactsDAO implements ContactsDAO {
 
         try {
             Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("select * from contacts");
-            while (rs.next()) {
-                contacts.add(new Contact(rs.getString("name"), rs.getString("phone")));
+            ResultSet res = statement.executeQuery("select * from contacts");
+            while (res.next()) {
+                contacts.add(new Contact(res.getString("name"), res.getString("phone")));
             }
         }
         catch (SQLException sqlx) {
@@ -56,10 +57,33 @@ public class MySQLContactsDAO implements ContactsDAO {
 
     public void deleteByName(String name) {
 
+        try {
+            PreparedStatement statement = connection.prepareStatement("delete from contacts where name = ?");
+            statement.setString(1, name);
+            statement.executeUpdate();
+        }
+        catch (SQLException sqlx) {
+            System.out.println("Error deleting contact: " + sqlx.getMessage());
+        }
     }
 
     public List<Contact> searchContacts(String searchTerm) {
-        return null;
+
+        List<Contact> likeContacts = new ArrayList<>();
+
+        try {
+            PreparedStatement statement = connection.prepareStatement("select * from contacts where name like ?");
+            statement.setString(1, "%" + searchTerm + "%");
+
+            ResultSet res = statement.executeQuery();
+            while (res.next()) {
+                likeContacts.add(new Contact(res.getString("name"), res.getString("phone")));
+            }
+        }
+        catch (SQLException sqlx) {
+            System.out.println("Error reading database: " + sqlx.getMessage());
+        }
+        return likeContacts;
     }
 
     public void open() {
@@ -85,7 +109,6 @@ public class MySQLContactsDAO implements ContactsDAO {
         }
         try {
             connection.close();
-
             System.out.println("Connection closed.");
         } catch(SQLException e) {
             // ignore this
