@@ -1,0 +1,119 @@
+package contacts_manager;
+
+import java.util.List;
+import java.util.Scanner;
+
+public class ContactsManager {
+
+    private static Scanner scanner;
+
+    // Standard output for displaying contacts
+    public static void displayHeaders() {
+        System.out.println("Name                | Phone number |");
+        System.out.println("------------------------------------");
+    }
+
+    public static void displayContacts(List<Contact>contactList) {
+        displayHeaders();
+        for (Contact contact : contactList) {
+            System.out.println(contact.toString() + "|");
+        }
+        System.out.println();
+    }
+
+    private static String formatNumber() {
+        System.out.println("Please enter a phone number that is 7 or 10 digits long" +
+                " without any - or ()");
+        String phoneNumber = scanner.nextLine();
+
+        // Ensure user entered all numerical digits
+        try {
+            long number = Long.parseLong(phoneNumber);
+        } catch (NumberFormatException e) {
+            System.out.println("Not a number try again");
+            return formatNumber();
+        }
+
+        // Insert dashes if number is an acceptable length (7 or 10 digits)
+        switch (phoneNumber.length()){
+            case 10 :
+                phoneNumber = phoneNumber.substring(0,6) + "-" + phoneNumber.substring(6);
+            case 7 :
+                return phoneNumber.substring(0,3) + "-" + phoneNumber.substring(3);
+            default :
+                System.out.println("invalid number please enter a valid number");
+        }
+        return formatNumber();
+    }
+
+    public static void main(String[] args) {
+
+        String PATH_TO_FILE = "data/contacts.txt";
+        scanner = new Scanner(System.in);
+        String userResponse; // Menu choice
+        boolean done = false;
+
+        ContactUtils utils = new ContactUtils(PATH_TO_FILE);
+        ContactsDAO contactsDAO = new FileContactsDAO(PATH_TO_FILE);
+
+        utils.createContacts();
+
+        System.out.println("Welcome to the Contacts Manager!\n");
+        // Display menu with choices
+        while (!done) {
+            System.out.println("1. View contacts.");
+            System.out.println("2. Add a new contact.");
+            System.out.println("3. Search a contact by name.");
+            System.out.println("4. Delete an existing contact.");
+            System.out.println("5. Exit.\n");
+            System.out.println("Enter an option (1-5): ");
+
+            userResponse = scanner.nextLine();
+            switch (userResponse) {
+                case "1": // View contacts
+                    displayContacts(contactsDAO.fetchContacts());
+                    break;
+                case "2": // Add a new contact
+                    List<Contact> curContacts = contactsDAO.fetchContacts();
+                    boolean duplicateContact;
+                    String newName, overwrite, newNumber;
+                    do {
+                        duplicateContact = false;
+                        System.out.println("Enter name of new contact:");
+                        newName = scanner.nextLine();
+                        for (Contact curContact : curContacts) {
+                            if (curContact.getName().equalsIgnoreCase(newName)) {
+                                System.out.println("Contact already exists. Overwrite (y/n)?");
+                                overwrite = scanner.nextLine();
+                                if (!overwrite.equalsIgnoreCase("y") && !overwrite.equalsIgnoreCase("yes")) {
+                                    duplicateContact = true;
+                                }
+                                else {
+                                    contactsDAO.deleteByName(newName);
+                                }
+                                break;
+                            }
+                        }
+                    } while (duplicateContact);
+                    contactsDAO.insertContact(new Contact(newName, formatNumber()));
+                    break;
+                case "3": // Search a contact by name
+                    System.out.println("Enter name you would like to search for");
+                    String searchName = scanner.nextLine();
+                    displayContacts(contactsDAO.searchContacts(searchName));
+                    break;
+                case "4": // Delete an existing contact
+                    System.out.println("Enter name of contact you would like to delete");
+                    String deleteName = scanner.nextLine();
+                    contactsDAO.deleteByName(deleteName);
+                    break;
+                case "5": // Exit
+                    done = true;
+                    scanner.close();
+                    break;
+                default: // Entered something other than 1-5
+                    System.out.println("Invalid response. Try again.\n");
+            }
+        }
+    }
+}
