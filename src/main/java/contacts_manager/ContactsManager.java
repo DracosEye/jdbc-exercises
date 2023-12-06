@@ -55,9 +55,8 @@ public class ContactsManager {
         String PATH_TO_FILE = "data/contacts.txt"; // File used for file-based data storage
         scanner = new Scanner(System.in);
         String userResponse; // Menu choice
-        boolean done = false;
+        boolean done = false; // Used to terminate menu loop
 
-//        ContactsDAO contactsDAO = new FileContactsDAO(PATH_TO_FILE);
         ContactsDAO contactsDAO = new MySQLContactsDAO();
 
         System.out.println("Welcome to the Contacts Manager!\n");
@@ -83,13 +82,17 @@ public class ContactsManager {
                         duplicateContact = false;
                         System.out.println("Enter name of new contact:");
                         newName = scanner.nextLine();
+                        // For updating existing contacts
                         for (Contact curContact : curContacts) {
                             if (curContact.getName().equalsIgnoreCase(newName)) {
                                 System.out.println("Contact already exists. Overwrite (y/n)?");
                                 overwrite = scanner.nextLine();
+                                // User does not wish to overwrite --> ask for another name
                                 if (!overwrite.equalsIgnoreCase("y") && !overwrite.equalsIgnoreCase("yes")) {
                                     duplicateContact = true;
                                 }
+                                // User does wish to overwrite --> delete existing contact and create
+                                // new one with the same name
                                 else {
                                     contactsDAO.deleteByName(newName);
                                 }

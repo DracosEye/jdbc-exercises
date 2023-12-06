@@ -69,11 +69,11 @@ public class FileContactsDAO implements ContactsDAO {
     }
 
     public void open() {
-
+        // No connection to open
     }
 
     public void close() {
-
+        // No connection to close
     }
 
     // Update file based on List of contacts
